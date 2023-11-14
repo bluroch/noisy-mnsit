@@ -1,5 +1,6 @@
 # fmt: off
 import os
+# set this to 3 so tensorflow doesnt spam terminal if not GPU is present
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 import sys
@@ -27,39 +28,26 @@ for arg in sys.argv:
     if arg == 'debug':
         debug = True
 
-# Base model to reference
+# Models
 
 
-def gaussian_noise(x_train, y_train, x_test, y_test):
+def gaussian_noise():
+    # Gaussian Noise has a regularization effect to a certain limit
     model = Sequential()
     model.add(Conv2D(16,
                      kernel_size=(3, 3),
                      padding="same",
                      input_shape=(img_rows, img_cols, 1)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(GaussianNoise(0.1))
-    model.add(Activation(keras.activations.relu))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Flatten())
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax'))
 
-    model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=keras.optimizers.Adam(),
-                  metrics=['accuracy'])
-
-    model.fit(x_train, y_train,
-              epochs=epochs,
-              validation_data=(x_test, y_test),
-              verbose=0)
-
-    if (verbose):
-        model.summary()
-
-    return model.evaluate(x_test, y_test, verbose=0)
+    return model
 
 
-def base_model(x_train, y_train, x_test, y_test):
+def base_model():
     model = Sequential()
     model.add(Conv2D(16,
                      kernel_size=(3, 3),
@@ -72,26 +60,17 @@ def base_model(x_train, y_train, x_test, y_test):
     model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax'))
 
-    model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=keras.optimizers.Adam(),
-                  metrics=['accuracy'])
-
-    model.fit(x_train, y_train,
-              epochs=epochs,
-              validation_data=(x_test, y_test),
-              verbose=0)
-
-    return model.evaluate(x_test, y_test, verbose=0)
+    return model
 
 # Func list to run, add new funcs as they are made
 
 
 def func_list():
-    # funcs = [base_model, gaussian_noise]
-    funcs = [gaussian_noise]
+    funcs = [base_model, gaussian_noise]
+    # funcs = [gaussian_noise]
     return funcs
 
-# Main functions
+# Main function
 
 
 def main():
@@ -115,8 +94,23 @@ def main():
 
     scores = []
     for i, func in enumerate(funcs):
-        scores.append((func(x_train=x_train, y_train=y_train,
-                            x_test=x_test, y_test=y_test), func.__name__))
+        model = func()
+
+        model.compile(loss=keras.losses.categorical_crossentropy,
+                      optimizer=keras.optimizers.Adam(),
+                      metrics=['accuracy'])
+
+        model.fit(x_train, y_train,
+                  epochs=epochs,
+                  validation_data=(x_test, y_test),
+                  verbose=0)
+
+        if (verbose):
+            model.summary()
+
+        score = model.evaluate(x_test, y_test, verbose=0)
+
+        scores.append((score, func.__name__))
         print('\nFunction: ' + func.__name__)
         print('\tTest loss: ', scores[i][0][0])
         print('\tTest accuracy: ', scores[i][0][1])
@@ -136,6 +130,11 @@ def main():
     print('\n')
     print('Average accuracy:', average_acc)
     print('Best accuracy:', best_acc[1])
+
+    print('{0:^20}|{1:^10}'.format('name', 'deviation (from avg)'))
+    for score in scores:
+        (data, name) = score
+        print('{0:^20}|{1:^10.3f}'.format(name, data[1] / average_acc))
 
     return
 
