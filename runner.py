@@ -147,14 +147,6 @@ def main():
     x_train /= 255
     x_test /= 255
 
-    noisy = add_noise(dataset=x_train[[0, 1]], noise_type="s&p", amount=0.5)
-    print("Original\n", x_train[[0, 1]])
-    print("Noisy\n", noisy)
-    print(np.max(np.subtract(x_train[[0, 1]], noisy)))
-    save_dataset(noisy, name="noisy_head")
-    save_dataset(x_train[[0, 1]], name="original_head")
-    return
-
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
 
