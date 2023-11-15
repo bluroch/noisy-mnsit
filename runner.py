@@ -30,9 +30,9 @@ img_rows, img_cols = 28, 28
 verbose = False
 debug = False
 for arg in sys.argv:
-    if arg == 'verbose':
+    if arg == "verbose":
         verbose = True
-    if arg == 'debug':
+    if arg == "debug":
         debug = True
 
 # Models
@@ -41,33 +41,36 @@ for arg in sys.argv:
 def gaussian_noise():
     # Gaussian Noise has a regularization effect to a certain limit
     model = Sequential()
-    model.add(Conv2D(16,
-                     kernel_size=(3, 3),
-                     padding="same",
-                     input_shape=(img_rows, img_cols, 1)))
+    model.add(
+        Conv2D(
+            16, kernel_size=(3, 3), padding="same", input_shape=(img_rows, img_cols, 1)
+        )
+    )
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(GaussianNoise(0.1))
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(128, activation="relu"))
     model.add(Flatten())
-    model.add(Dense(num_classes, activation='softmax'))
+    model.add(Dense(num_classes, activation="softmax"))
 
     return model
 
 
 def base_model():
     model = Sequential()
-    model.add(Conv2D(16,
-                     kernel_size=(3, 3),
-                     padding="same",
-                     input_shape=(img_rows, img_cols, 1)))
+    model.add(
+        Conv2D(
+            16, kernel_size=(3, 3), padding="same", input_shape=(img_rows, img_cols, 1)
+        )
+    )
     model.add(Activation(keras.activations.relu))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(128, activation="relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(num_classes, activation='softmax'))
+    model.add(Dense(num_classes, activation="softmax"))
 
     return model
+
 
 # Func list to run, add new funcs as they are made
 
@@ -76,6 +79,7 @@ def func_list():
     funcs = [base_model, gaussian_noise]
     # funcs = [gaussian_noise]
     return funcs
+
 
 # Main function
 
@@ -117,45 +121,46 @@ def main():
     for i, func in enumerate(funcs):
         model = func()
 
-        model.compile(loss=keras.losses.categorical_crossentropy,
-                      optimizer=keras.optimizers.Adam(),
-                      metrics=['accuracy'])
+        model.compile(
+            loss=keras.losses.categorical_crossentropy,
+            optimizer=keras.optimizers.Adam(),
+            metrics=["accuracy"],
+        )
 
-        model.fit(x_train, y_train,
-                  epochs=epochs,
-                  validation_data=(x_test, y_test),
-                  verbose=0)
+        model.fit(
+            x_train, y_train, epochs=epochs, validation_data=(x_test, y_test), verbose=0
+        )
 
-        if (verbose):
+        if verbose:
             model.summary()
 
         score = model.evaluate(x_test, y_test, verbose=0)
 
         scores.append((score, func.__name__))
-        print('\nFunction: ' + func.__name__)
-        print('\tTest loss: ', scores[i][0][0])
-        print('\tTest accuracy: ', scores[i][0][1])
+        print("\nFunction: " + func.__name__)
+        print("\tTest loss: ", scores[i][0][0])
+        print("\tTest accuracy: ", scores[i][0][1])
 
-    if (verbose):
-        print('\n', scores)
+    if verbose:
+        print("\n", scores)
 
     average_acc = 0
     best_acc = scores[0]
     for score in scores:
         (data, name) = score
         average_acc += data[1]
-        if (data[1] > best_acc[0][1]):
+        if data[1] > best_acc[0][1]:
             best_acc = score
 
     average_acc /= len(scores)
-    print('\n')
-    print('Average accuracy:', average_acc)
-    print('Best accuracy:', best_acc[1])
+    print("\n")
+    print("Average accuracy:", average_acc)
+    print("Best accuracy:", best_acc[1])
 
-    print('{0:^20}|{1:^10}'.format('name', 'deviation (from avg)'))
+    print("{0:^20}|{1:^10}".format("name", "deviation (from avg)"))
     for score in scores:
         (data, name) = score
-        print('{0:^20}|{1:^10.3f}'.format(name, data[1] / average_acc))
+        print("{0:^20}|{1:^10.3f}".format(name, data[1] / average_acc))
 
     return
 
