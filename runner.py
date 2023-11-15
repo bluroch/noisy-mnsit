@@ -94,14 +94,17 @@ def load_dataset(path: str) -> numpy.typing.ArrayLike:
 def main():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-    if (debug):
-        print('elements reduced from: ',  x_train.shape)
+    x_train = x_train.reshape(60_000, 784)
+    x_test = x_test.reshape(10_000, 784)
+
+    if debug:
+        print("elements reduced from: ", x_train.shape)
         x_train = numpy.split(x_train, 10)[0]
-        print('to elements: ', x_train.shape)
+        print("to elements: ", x_train.shape)
         y_train = numpy.split(y_train, 10)[0]
 
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
+    x_train = x_train.astype("float32")
+    x_test = x_test.astype("float32")
     x_train /= 255
     x_test /= 255
 
