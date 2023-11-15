@@ -3,3 +3,4 @@ keras
 numpy
 pyarrow
 pandas
+scikit-image

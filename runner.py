@@ -17,6 +17,7 @@ from keras.datasets import mnist
 from keras.layers import (Activation, BatchNormalization, Conv2D, Dense,
                           Dropout, Flatten, GaussianNoise, MaxPooling2D)
 from keras.models import Sequential
+from skimage.util import random_noise
 
 # fmt: on
 
@@ -85,14 +86,48 @@ def func_list():
 
 
 def save_dataset(dataset, name: str) -> None:
+    """
+    Save a dataset in parquet format.
+
+    Args:
+        dataset: The dataset
+        name (str): Name of the file
+    """
     pa_table = pa.table(pd.DataFrame(dataset))
     pq.write_table(pa_table, f"{name}.parquet")
     return
 
 
 def load_dataset(path: str) -> numpy.typing.ArrayLike:
+    """
+    Load a previously saved dataset from the given path.
+
+    Args:
+        path (str): The path
+
+    Returns:
+        numpy.typing.ArrayLike: The loaded dataset
+    """
     pa_table = pq.read_table(path)
     return pa_table.to_pandas().to_numpy()
+
+
+def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.ArrayLike:
+    """
+    Adds noise to the provided dataset.
+    Source: https://scikit-image.org/docs/stable/api/skimage.util.html#skimage.util.random_noise
+
+    Args:
+        dataset: MNIST images
+        noise_type (str): Noise type, valid noise types: "gaussian", "localvar", "poisson", "salt", "pepper", "s&p", "speckle"
+        amount (float, optional): The amount of noise. Defaults to 0.05.
+
+    Returns:
+        numpy.typing.ArrayLike: The dataset with added noise
+    """
+    return np.array(
+        [np.array(random_noise(img, mode=noise_type, amount=amount)) for img in dataset]
+    )
 
 
 def main():
@@ -111,6 +146,14 @@ def main():
     x_test = x_test.astype("float32")
     x_train /= 255
     x_test /= 255
+
+    noisy = add_noise(dataset=x_train[[0, 1]], noise_type="s&p", amount=0.5)
+    print("Original\n", x_train[[0, 1]])
+    print("Noisy\n", noisy)
+    print(np.max(np.subtract(x_train[[0, 1]], noisy)))
+    save_dataset(noisy, name="noisy_head")
+    save_dataset(x_train[[0, 1]], name="original_head")
+    return
 
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
