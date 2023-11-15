@@ -1,16 +1,23 @@
 # fmt: off
 import os
+
 # set this to 3 so tensorflow doesnt spam terminal if not GPU is present
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 import sys
-import numpy
+
+import keras
+import numpy as np
+import numpy.typing
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import tensorflow
-from tensorflow import keras
 from keras.datasets import mnist
+from keras.layers import (Activation, BatchNormalization, Conv2D, Dense,
+                          Dropout, Flatten, GaussianNoise, MaxPooling2D)
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, GaussianNoise
-from keras.layers import Conv2D, MaxPooling2D, Activation, BatchNormalization
+
 # fmt: on
 
 # Global variables
@@ -71,6 +78,17 @@ def func_list():
     return funcs
 
 # Main function
+
+
+def save_dataset(dataset, name: str) -> None:
+    pa_table = pa.table(pd.DataFrame(dataset))
+    pq.write_table(pa_table, f"{name}.parquet")
+    return
+
+
+def load_dataset(path: str) -> numpy.typing.ArrayLike:
+    pa_table = pq.read_table(path)
+    return pa_table.to_pandas().to_numpy()
 
 
 def main():
