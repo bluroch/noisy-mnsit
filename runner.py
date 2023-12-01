@@ -93,6 +93,7 @@ def save_dataset(dataset, name: str) -> None:
         dataset: The dataset
         name (str): Name of the file
     """
+    dataset = dataset.reshape((dataset.shape[0], 784))
     pa_table = pa.table(pd.DataFrame(dataset))
     pq.write_table(pa_table, f"{name}.parquet")
     return
@@ -109,7 +110,7 @@ def load_dataset(path: str) -> numpy.typing.ArrayLike:
         numpy.typing.ArrayLike: The loaded dataset
     """
     pa_table = pq.read_table(path)
-    return pa_table.to_pandas().to_numpy()
+    return pa_table.to_pandas().to_numpy().reshape((pa_table.shape[0], 28, 28))
 
 
 def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.ArrayLike:
@@ -130,11 +131,27 @@ def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.Ar
     )
 
 
+def generate_noisy_datasets(dataset) -> None:
+    """
+    Generate parquet files for all noise types and amounts.
+
+    Args:
+        dataset: The clean dataset.
+    """
+    # noise_types = ["gaussian", "speckle"]
+    s_p_noise_types = ["salt", "pepper", "s&p"]
+    noise_amounts = [0.05, 0.1, 0.25]
+    for noise_amount in noise_amounts:
+        for noise_type in s_p_noise_types:
+            print(f"Generating dataset {noise_type=}, {noise_amount=}")
+            noisy_dataset = add_noise(
+                dataset, noise_type=noise_type, amount=noise_amount
+            )
+            save_dataset(noisy_dataset, f"mnist_{noise_type}_{noise_amount}")
+
+
 def main():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-
-    x_train = x_train.reshape(60_000, 784)
-    x_test = x_test.reshape(10_000, 784)
 
     if debug:
         print("elements reduced from: ", x_train.shape)
