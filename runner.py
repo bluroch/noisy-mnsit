@@ -113,7 +113,7 @@ def load_dataset(path: str) -> numpy.typing.ArrayLike:
     return pa_table.to_pandas().to_numpy().reshape((pa_table.shape[0], 28, 28))
 
 
-def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.ArrayLike:
+def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.ArrayLike:  # type: ignore
     """
     Adds noise to the provided dataset.
     Source: https://scikit-image.org/docs/stable/api/skimage.util.html#skimage.util.random_noise
@@ -126,9 +126,26 @@ def add_noise(dataset, noise_type: str, amount: float = 0.05) -> numpy.typing.Ar
     Returns:
         numpy.typing.ArrayLike: The dataset with added noise
     """
-    return np.array(
-        [np.array(random_noise(img, mode=noise_type, amount=amount)) for img in dataset]
-    )
+    if noise_type in ["salt", "pepper", "s&p"]:
+        return np.array(
+            [
+                np.array(random_noise(img, mode=noise_type, amount=amount))
+                for img in dataset
+            ]
+        )
+    if noise_type in ["gaussian", "speckle"]:
+        return np.array(
+            [
+                np.array(random_noise(img, mode=noise_type, var=amount))
+                for img in dataset
+            ]
+        )
+    if noise_type in ["poisson"]:
+        return np.array(
+            [np.array(random_noise(img, mode=noise_type)) for img in dataset]
+        )
+    if noise_type in ["localvar"]:
+        raise Exception("Unsupported")
 
 
 def generate_noisy_datasets(dataset) -> None:
@@ -138,11 +155,10 @@ def generate_noisy_datasets(dataset) -> None:
     Args:
         dataset: The clean dataset.
     """
-    # noise_types = ["gaussian", "speckle"]
-    s_p_noise_types = ["salt", "pepper", "s&p"]
+    noise_types = ["gaussian", "speckle", "salt", "pepper", "s&p", "poisson"]
     noise_amounts = [0.05, 0.1, 0.25]
     for noise_amount in noise_amounts:
-        for noise_type in s_p_noise_types:
+        for noise_type in noise_types:
             print(f"Generating dataset {noise_type=}, {noise_amount=}")
             noisy_dataset = add_noise(
                 dataset, noise_type=noise_type, amount=noise_amount
