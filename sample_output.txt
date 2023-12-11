@@ -1,0 +1,51 @@
+Dataset: mnist_gaussian_0.1.parquet
+        base: 0.819100022315979
+        Gaussian: 0.15569999814033508
+Dataset: mnist_gaussian_0.25.parquet
+        base: 0.4142000079154968
+        Gaussian: 0.09960000216960907
+Dataset: mnist_pepper_0.05.parquet
+        base: 0.9765999913215637
+        Gaussian: 0.9366999864578247
+Dataset: mnist_pepper_0.1.parquet
+        base: 0.9523000121116638
+        Gaussian: 0.8626999855041504
+Dataset: mnist_pepper_0.25.parquet
+        base: 0.845300018787384
+        Gaussian: 0.598800003528595
+Dataset: mnist_poisson_0.05.parquet
+        base: 0.987500011920929
+        Gaussian: 0.9725000262260437
+Dataset: mnist_poisson_0.1.parquet
+        base: 0.9878000020980835
+        Gaussian: 0.9710000157356262
+Dataset: mnist_poisson_0.25.parquet
+        base: 0.9872000217437744
+        Gaussian: 0.9732999801635742
+Dataset: mnist_s&p_0.05.parquet
+        base: 0.9233999848365784
+        Gaussian: 0.6269999742507935
+Dataset: mnist_s&p_0.1.parquet
+        base: 0.7581999897956848
+        Gaussian: 0.3458000123500824
+Dataset: mnist_s&p_0.25.parquet
+        base: 0.34279999136924744
+        Gaussian: 0.11649999767541885
+Dataset: mnist_salt_0.05.parquet
+        base: 0.7861999869346619
+        Gaussian: 0.42989999055862427
+Dataset: mnist_salt_0.1.parquet
+        base: 0.49300000071525574
+        Gaussian: 0.2092999964952469
+Dataset: mnist_salt_0.25.parquet
+        base: 0.2078000009059906
+        Gaussian: 0.10520000010728836
+Dataset: mnist_speckle_0.05.parquet
+        base: 0.9853000044822693
+        Gaussian: 0.9657999873161316
+Dataset: mnist_speckle_0.1.parquet
+        base: 0.982200026512146
+        Gaussian: 0.9408000111579895
+Dataset: mnist_speckle_0.25.parquet
+        base: 0.960099995136261
+        Gaussian: 0.8260999917984009
